@@ -17,5 +17,13 @@ export interface Lead {
   company:string;
   value:number;
   status: LeadStatus;
-  created_at: Date;
+  created_at: string;
+  updated_at:string;
+}
+
+export interface LeadStats {
+  totalLeads: number;
+  totalValue: number;
+  wonValue: number;
+  pipelineCount: number;
 }

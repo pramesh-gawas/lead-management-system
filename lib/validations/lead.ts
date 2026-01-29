@@ -9,3 +9,8 @@ export const leadSchema = z.object({
 });
 
 export type LeadFormValues = z.infer<typeof leadSchema>;
+export interface Lead extends LeadFormValues {
+  id: string;
+  created_at: string;
+  updated_at: string;
+}

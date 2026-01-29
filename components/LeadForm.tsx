@@ -27,10 +27,13 @@ export default function LeadForm() {
   console.log("Current Form Errors:", errors);
 
   const onSubmit = (data: LeadFormValues) => {
-    // console.log(data);
-    addLead(data);
-    alert("Lead saved to local state!");
-    reset();
+    try {
+      addLead(data);
+      alert("Lead saved to local state!");
+      reset();
+    } catch (error) {
+      console.error("Failed to save:", error);
+    }
   };
 
   return (

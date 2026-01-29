@@ -6,15 +6,27 @@ import React, {
   useState,
   ReactNode,
   useEffect,
+  useMemo,
 } from "react";
-import { Lead } from "../types/lead";
+import { Lead, LeadStats, LeadStatus } from "../types/lead";
 import { supabase } from "@/lib/supabase";
 
 interface LeadContextType {
   leads: Lead[];
   loading: boolean;
-  addLead: (lead: Omit<Lead, "id" | "created_at">) => Promise<void>;
+  addLead: (
+    lead: Omit<Lead, "id" | "created_at" | "updated_at">,
+  ) => Promise<void>;
   deleteLead: (id: string) => Promise<void>;
+  updateLeadStatus: (id: string, newStatus: LeadStatus) => Promise<void>;
+  stats: LeadStats;
+  filter: LeadStatus | "ALL";
+  setFilter: (filter: LeadStatus | "ALL") => void;
+  filteredLeads: Lead[];
+  searchTerm: string;
+  setSearchTerm: (term: string) => void;
+  selectedLead: Lead | null;
+  setSelectedLead: (lead: Lead | null) => void;
 }
 
 const LeadContext = createContext<LeadContextType | undefined>(undefined);
@@ -22,6 +34,9 @@ const LeadContext = createContext<LeadContextType | undefined>(undefined);
 export function LeadProvider({ children }: { children: ReactNode }) {
   const [leads, setLeads] = useState<Lead[]>([]);
   const [loading, setLoading] = useState(true);
+  const [filter, setFilter] = useState<LeadStatus | "ALL">("ALL");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
 
   useEffect(() => {
     const fetchLeads = async () => {
@@ -42,7 +57,52 @@ export function LeadProvider({ children }: { children: ReactNode }) {
     fetchLeads();
   }, []);
 
-  const addLead = async (newLead: Omit<Lead, "id" | "created_at">) => {
+  const filteredLeads = useMemo(() => {
+    return leads.filter((lead) => {
+      const matchesStatus = filter === "ALL" || lead.status === filter;
+      const matchesSearch =
+        lead.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        lead.company.toLowerCase().includes(searchTerm.toLowerCase());
+      return matchesStatus && matchesSearch;
+    });
+  }, [leads, filter, searchTerm]);
+  const stats = {
+    totalLeads: leads.length,
+    totalValue: leads.reduce((sum, lead) => sum + Number(lead.value), 0),
+    wonValue: leads
+      .filter((l) => l.status === "WON")
+      .reduce((sum, lead) => sum + Number(lead.value), 0),
+    pipelineCount: leads.filter(
+      (l) => l.status !== "WON" && l.status !== "LOST",
+    ).length,
+  };
+
+  const updateLeadStatus = async (id: string, newStatus: LeadStatus) => {
+    const { error } = await supabase
+      .from("leads")
+      .update({ status: newStatus })
+      .eq("id", id);
+
+    if (!error) {
+      setLeads((prev) =>
+        prev.map((lead) =>
+          lead.id === id
+            ? {
+                ...lead,
+                status: newStatus,
+                updated_at: new Date().toISOString(),
+              }
+            : lead,
+        ),
+      );
+    } else {
+      console.error("Error updating status:", error);
+    }
+  };
+
+  const addLead = async (
+    newLead: Omit<Lead, "id" | "created_at" | "updated_at">,
+  ) => {
     const { data, error } = await supabase
       .from("leads")
       .insert([newLead])
@@ -66,7 +126,23 @@ export function LeadProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <LeadContext.Provider value={{ leads, loading, addLead, deleteLead }}>
+    <LeadContext.Provider
+      value={{
+        leads,
+        loading,
+        addLead,
+        deleteLead,
+        updateLeadStatus,
+        stats,
+        filter,
+        setFilter,
+        filteredLeads,
+        searchTerm,
+        setSearchTerm,
+        selectedLead,
+        setSelectedLead,
+      }}
+    >
       {children}
     </LeadContext.Provider>
   );

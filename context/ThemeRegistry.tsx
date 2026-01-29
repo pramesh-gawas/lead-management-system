@@ -1,19 +1,19 @@
 "use client";
 
-import { createTheme, ThemeProvider } from "@mui/material/styles";
+import { AppRouterCacheProvider } from "@mui/material-nextjs/v14-appRouter";
+import { ThemeProvider, createTheme } from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
-import { StyledEngineProvider } from "@mui/material/styles";
 import { ReactNode } from "react";
 
-const theme = createTheme();
+const theme = createTheme({});
 
 export default function ThemeRegistry({ children }: { children: ReactNode }) {
   return (
-    <StyledEngineProvider injectFirst>
+    <AppRouterCacheProvider>
       <ThemeProvider theme={theme}>
         <CssBaseline />
         {children}
       </ThemeProvider>
-    </StyledEngineProvider>
+    </AppRouterCacheProvider>
   );
 }

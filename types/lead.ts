@@ -17,5 +17,5 @@ export interface Lead {
   company:string;
   value:number;
   status: LeadStatus;
-  createdAt: Date;
+  created_at: Date;
 }

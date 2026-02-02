@@ -9,6 +9,8 @@ export const LEAD_STATUS = {
 
 export type LeadStatus = typeof LEAD_STATUS[keyof typeof LEAD_STATUS];
 
+
+export type LeadSource = "LinkedIn" | "Website" | "Referral" | "Cold Call" | "Direct";
 export interface Lead {
   id: string;
   name: string;
@@ -16,6 +18,7 @@ export interface Lead {
   phone?: string;
   company:string;
   value:number;
+  source: LeadSource;
   status: LeadStatus;
   created_at: string;
   updated_at:string;

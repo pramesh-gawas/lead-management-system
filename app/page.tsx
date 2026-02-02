@@ -1,26 +1,21 @@
 "use client";
-import dynamic from "next/dynamic";
-const LeadForm = dynamic(() => import("@/components/LeadForm"), {
-  ssr: false,
-});
-
-import LeadList from "@/components/LeadList";
+import React from "react";
 import DashboardStats from "@/components/DashboardStats";
-import LeadDetailDrawer from "@/components/LeadDetailDrawer";
+import LeadChart from "@/components/LeadChart";
+import { Box, Typography } from "@mui/material";
 
-export default function Home() {
+export default function DashboardPage() {
   return (
-    <div className="max-w-5xl mx-auto p-6 space-y-8">
+    <Box>
+      <Typography variant="h4" fontWeight="bold" mb={3}>
+        Sales Overview
+      </Typography>
+
       <DashboardStats />
-      <LeadDetailDrawer />
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <div className="lg:col-span-1">
-          <LeadForm />
-        </div>
-        <div className="lg:col-span-2">
-          <LeadList />
-        </div>
-      </div>
-    </div>
+
+      <Box mt={4}>
+        <LeadChart />
+      </Box>
+    </Box>
   );
 }

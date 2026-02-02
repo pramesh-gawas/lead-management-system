@@ -21,10 +21,10 @@ export default function LeadForm() {
       company: "",
       value: 0,
       status: "NEW",
+      source: "Direct",
     },
   });
 
-  console.log("Current Form Errors:", errors);
 
   const onSubmit = (data: LeadFormValues) => {
     try {
@@ -82,12 +82,30 @@ export default function LeadForm() {
         <TextField
           select
           label="Status"
-          defaultValue="NEW"
           {...register("status")}
+          error={!!errors.status}
+          helperText={errors.status?.message}
           fullWidth
           className="md:col-span-2"
         >
           {["NEW", "CONTACTED", "QUALIFIED", "PROPOSAL", "WON", "LOST"].map(
+            (option) => (
+              <MenuItem key={option} value={option}>
+                {option}
+              </MenuItem>
+            ),
+          )}
+        </TextField>
+
+        <TextField
+          select
+          fullWidth
+          label="Lead Source"
+          {...register("source")}
+          error={!!errors.source}
+          helperText={errors.source?.message}
+        >
+          {["LinkedIn", "Website", "Referral", "Cold Call", "Direct"].map(
             (option) => (
               <MenuItem key={option} value={option}>
                 {option}

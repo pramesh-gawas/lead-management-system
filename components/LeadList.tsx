@@ -59,7 +59,6 @@ export default function LeadList() {
     setSearchTerm,
     setSelectedLead,
   } = useLeads();
-  console.log(leads);
 
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const handleSelectAll = (event: React.ChangeEvent<HTMLInputElement>) => {

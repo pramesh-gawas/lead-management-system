@@ -17,6 +17,7 @@ export default function AuthPage() {
   const [isSignUp, setIsSignUp] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [username, setUsername] = useState("");
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
 
@@ -66,6 +67,16 @@ export default function AuthPage() {
 
         <form onSubmit={handleAuth}>
           <Stack spacing={2}>
+            {isSignUp && (
+              <TextField
+                label="Username"
+                type="username"
+                fullWidth
+                required
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+              />
+            )}
             <TextField
               label="Email"
               type="email"

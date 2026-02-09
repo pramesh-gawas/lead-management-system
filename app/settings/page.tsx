@@ -48,7 +48,6 @@ export default function SettingsPage() {
 
     if (!error) alert("Profile updated!");
   };
-
   return (
     <Box>
       <Typography variant="h4" fontWeight="bold" mb={3}>
@@ -73,12 +72,18 @@ export default function SettingsPage() {
               <Typography variant="h6">User Profile</Typography>
               <TextField
                 label="Full Name"
-                defaultValue="Admin User"
+                value={profile.full_name ?? "user"}
+                onChange={(e) =>
+                  setProfile({ ...profile, full_name: e.target.value })
+                }
                 fullWidth
               />
               <TextField
                 label="Email Address"
-                defaultValue="admin@crm.com"
+                value={profile.email ?? "admin@crm.com"}
+                onChange={(e) =>
+                  setProfile({ ...profile, email: e.target.value })
+                }
                 fullWidth
               />
               <Button

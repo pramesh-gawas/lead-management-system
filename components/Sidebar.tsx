@@ -21,7 +21,7 @@ import { supabase } from "@/lib/supabase";
 const drawerWidth = 240;
 
 const menuItems = [
-  { text: "Dashboard", icon: <DashboardIcon />, path: "/" },
+  { text: "Dashboard", icon: <DashboardIcon />, path: "/dashboard" },
   { text: "Leads", icon: <PeopleIcon />, path: "/leads" },
   { text: "Settings", icon: <SettingsIcon />, path: "/settings" },
 ];

@@ -31,7 +31,7 @@ export default function AuthPage() {
     if (authError) {
       setError(authError.message);
     } else {
-      router.push("/");
+      router.push("/dashboard");
     }
   };
 

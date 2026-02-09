@@ -2,7 +2,6 @@
 import React from "react";
 import { useLeads } from "../context/LeadContext";
 import { Paper, Grid, Typography, Box, Skeleton } from "@mui/material";
-import TrendingUpIcon from "@mui/icons-material/TrendingUp";
 import PeopleIcon from "@mui/icons-material/People";
 import AccountBalanceWalletIcon from "@mui/icons-material/AccountBalanceWallet"; // Fixed import
 import StarsIcon from "@mui/icons-material/Stars"; // A better icon for Avg Value

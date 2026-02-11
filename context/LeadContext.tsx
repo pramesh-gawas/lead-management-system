@@ -27,6 +27,7 @@ interface LeadContextType {
   setSearchTerm: (term: string) => void;
   selectedLead: Lead | null;
   setSelectedLead: (lead: Lead | null) => void;
+  fetchLeads: () => Promise<void>;
 }
 
 const LeadContext = createContext<LeadContextType | undefined>(undefined);
@@ -38,23 +39,38 @@ export function LeadProvider({ children }: { children: ReactNode }) {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
 
+  const fetchLeads = async () => {
+    setLoading(true);
+    const { data, error } = await supabase
+      .from("leads")
+      .select("*")
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      console.error("Error fetching leads:", error);
+    } else {
+      setLeads(data || []);
+    }
+    setLoading(false);
+  };
+
   useEffect(() => {
-    const fetchLeads = async () => {
-      setLoading(true);
-      const { data, error } = await supabase
-        .from("leads")
-        .select("*")
-        .order("created_at", { ascending: false });
-
-      if (error) {
-        console.error("Error fetching leads:", error);
-      } else {
-        setLeads(data || []);
-      }
-      setLoading(false);
-    };
-
     fetchLeads();
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === "SIGNED_IN") {
+        fetchLeads();
+      }
+      if (event === "SIGNED_OUT") {
+        setLeads([]);
+      }
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
   }, []);
 
   const filteredLeads = useMemo(() => {
@@ -141,6 +157,7 @@ export function LeadProvider({ children }: { children: ReactNode }) {
         setSearchTerm,
         selectedLead,
         setSelectedLead,
+        fetchLeads,
       }}
     >
       {children}

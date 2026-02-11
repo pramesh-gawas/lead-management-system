@@ -5,11 +5,15 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { TextField, Button, MenuItem, Paper, Typography } from "@mui/material";
 import { leadSchema, LeadFormValues } from "../lib/validations/lead";
 import { useLeads } from "@/context/LeadContext";
+import { useState } from "react";
+import { supabase } from "@/lib/supabase";
 
 export default function LeadForm() {
-  const { addLead } = useLeads();
+  const { fetchLeads } = useLeads();
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const {
     reset,
+    watch,
     register,
     handleSubmit,
     formState: { errors },
@@ -25,14 +29,30 @@ export default function LeadForm() {
     },
   });
 
-
-  const onSubmit = (data: LeadFormValues) => {
+  const onSubmit = async (formData: LeadFormValues) => {
+    setIsSubmitting(true);
     try {
-      addLead(data);
-      alert("Lead saved to local state!");
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (!user) throw new Error("No user found");
+      const { error } = await supabase.from("leads").insert([
+        {
+          ...formData,
+          user_id: user.id,
+        },
+      ]);
+
+      if (error) throw error;
+
+      alert("Lead saved successfully!");
+      fetchLeads();
       reset();
-    } catch (error) {
-      console.error("Failed to save:", error);
+    } catch (error: any) {
+      console.error("Failed to save:", error.message);
+      alert(`Save failed: ${error.message}`);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -50,6 +70,7 @@ export default function LeadForm() {
           label="Full Name"
           {...register("name")}
           error={!!errors.name}
+          value={watch("name") || ""}
           helperText={errors.name?.message}
           fullWidth
         />
@@ -65,6 +86,7 @@ export default function LeadForm() {
         <TextField
           label="Company"
           {...register("company")}
+          value={watch("company") || ""}
           error={!!errors.company}
           helperText={errors.company?.message}
           fullWidth
@@ -83,6 +105,7 @@ export default function LeadForm() {
           select
           label="Status"
           {...register("status")}
+          value={watch("status") || "NEW"}
           error={!!errors.status}
           helperText={errors.status?.message}
           fullWidth
@@ -103,6 +126,7 @@ export default function LeadForm() {
           label="Lead Source"
           {...register("source")}
           error={!!errors.source}
+          value={watch("source") || "Direct"}
           helperText={errors.source?.message}
         >
           {["LinkedIn", "Website", "Referral", "Cold Call", "Direct"].map(
@@ -120,8 +144,9 @@ export default function LeadForm() {
             variant="contained"
             size="large"
             className="bg-blue-600 hover:bg-blue-700 w-full py-3"
+            disabled={isSubmitting}
           >
-            Save Lead
+            {isSubmitting ? "Saving..." : "Save Lead"}
           </Button>
         </div>
       </form>

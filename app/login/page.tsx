@@ -26,7 +26,15 @@ export default function AuthPage() {
     setError(null);
 
     const { error: authError } = isSignUp
-      ? await supabase.auth.signUp({ email, password })
+      ? await supabase.auth.signUp({
+          email,
+          password,
+          options: {
+            data: {
+              full_name: username,
+            },
+          },
+        })
       : await supabase.auth.signInWithPassword({ email, password });
 
     if (authError) {

@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   Box,
   Typography,
@@ -10,32 +10,34 @@ import {
   Button,
   Divider,
   Stack,
-  Switch,
-  FormControlLabel,
 } from "@mui/material";
 import SaveIcon from "@mui/icons-material/Save";
 import { supabase } from "@/lib/supabase";
+import NotificationSettings from "@/components/NotficationSettings";
 
 export default function SettingsPage() {
   const [tabValue, setTabValue] = useState(0);
   const [profile, setProfile] = useState({ full_name: "", email: "" });
+  const [loading, setLoading] = useState(true);
+
+  const fetchProfile = useCallback(async () => {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (user) {
+      const { data } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("id", user.id)
+        .single();
+      setProfile(data);
+    }
+    setLoading(false);
+  }, []);
 
   useEffect(() => {
-    const fetchProfile = async () => {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      if (user) {
-        const { data } = await supabase
-          .from("profiles")
-          .select("*")
-          .eq("id", user.id)
-          .single();
-        if (data) setProfile(data);
-      }
-    };
     fetchProfile();
-  }, []);
+  }, [fetchProfile]);
 
   const handleSave = async () => {
     const {
@@ -99,21 +101,11 @@ export default function SettingsPage() {
 
           {/* NOTIFICATIONS TAB */}
           {tabValue === 1 && (
-            <Stack spacing={2}>
-              <Typography variant="h6">Notification Preferences</Typography>
-              <FormControlLabel
-                control={<Switch defaultChecked />}
-                label="Email me when a lead is WON"
-              />
-              <FormControlLabel
-                control={<Switch defaultChecked />}
-                label="Notify me of new leads"
-              />
-              <FormControlLabel
-                control={<Switch />}
-                label="Weekly summary report"
-              />
-            </Stack>
+            <NotificationSettings
+              profile={profile}
+              onUpdateSuccess={fetchProfile}
+              loading={loading}
+            ></NotificationSettings>
           )}
 
           {/* SYSTEM CONFIG TAB */}
